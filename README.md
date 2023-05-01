@@ -1,2 +1,2 @@
 # yelpcamp
-Yelp-like application for searching and rating camping sights.
+Yelp-like application for searching and rating camping sites.
