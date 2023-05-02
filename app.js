@@ -130,6 +130,15 @@ app.post(
 	})
 );
 
+app.delete(
+	"/campgrounds/:id/reviews/:reviewId",
+	catchAsync(async (req, res) => {
+		const { id, reviewId } = req.params;
+		await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } }); // This method is used to remove elements from arrays in MongoDB
+		await Review.findByIdAndDelete(reviewId);
+		res.redirect(`/campgrounds/${id}`);
+	})
+);
 /**
  * The method '.all' means 'for all kinds of request'
  * The path '*' means 'for every route'
