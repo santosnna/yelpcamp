@@ -3,6 +3,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const session = require("express-session");
+const flash = require("connect-flash");
 const ExpressError = require("./utils/ExpressError");
 const methodOverride = require("method-override");
 
@@ -30,6 +31,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
+/**
+ * This configures the Session with basic parameters and
+ * also sets an expiration date to the cookie
+ */
 const sessionConfig = {
 	secret: "thisshouldbeabettersecret!",
 	resave: false,
@@ -41,6 +46,19 @@ const sessionConfig = {
 	},
 };
 app.use(session(sessionConfig));
+app.use(flash());
+
+/**
+ * This is a Middleware that detects if the flash variable
+ * is set to anything during the last req/res cycle and if
+ * so, it is declared to a res.locals variable. This is used
+ * to send flash messages to the user.
+ */
+app.use((req, res, next) => {
+	res.locals.success = req.flash("success");
+	res.locals.error = req.flash("error");
+	next();
+});
 
 app.use("/campgrounds", campgrounds);
 app.use("/campgrounds/:id/reviews", reviews);

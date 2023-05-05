@@ -6,6 +6,13 @@ const Campground = require("../models/campground");
 const Review = require("../models/review");
 const { reviewSchema } = require("../schemas");
 
+/**
+ * This function is a Middleware that will validate a
+ * review acording to the Joi schema.
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const validateReview = (req, res, next) => {
 	const { error } = reviewSchema.validate(req.body);
 	if (error) {

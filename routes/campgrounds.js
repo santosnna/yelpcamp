@@ -5,6 +5,13 @@ const ExpressError = require("../utils/ExpressError");
 const Campground = require("../models/campground");
 const { campgroundSchema } = require("../schemas");
 
+/**
+ * This function is a Middleware that will validate a
+ * campground acording to the Joi schema.
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const validateCampground = (req, res, next) => {
 	const { error } = campgroundSchema.validate(req.body);
 	if (error) {
@@ -33,6 +40,7 @@ router.post(
 		// 	throw new ExpressError("Invalid Campground Data", 400);
 		const campground = new Campground(req.body.campground);
 		await campground.save();
+		req.flash("success", "Successfully made a new campground!");
 		res.redirect(`/campgrounds/${campground._id}`);
 	})
 );
