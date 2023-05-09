@@ -6,9 +6,12 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const ExpressError = require("./utils/ExpressError");
 const methodOverride = require("method-override");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
 const campgrounds = require("./routes/campgrounds");
 const reviews = require("./routes/reviews");
+const User = require("./models/user");
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
 	useNewUrlParser: true,
@@ -38,7 +41,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const sessionConfig = {
 	secret: "thisshouldbeabettersecret!",
 	resave: false,
-	saveUnitialized: true,
+	saveUninitialized: true,
 	cookie: {
 		httpOnly: true,
 		expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // Sets the expiration to 1 week (1000ms in 1 sec; 60sec in 1 min; etc)
@@ -47,6 +50,13 @@ const sessionConfig = {
 };
 app.use(session(sessionConfig));
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 /**
  * This is a Middleware that detects if the flash variable
@@ -58,6 +68,12 @@ app.use((req, res, next) => {
 	res.locals.success = req.flash("success");
 	res.locals.error = req.flash("error");
 	next();
+});
+
+app.get("/fakeUser", async (req, res) => {
+	const user = new User({ email: "colt@gmail.com", username: "colttt" });
+	const newUser = await User.register(user, "chicken");
+	res.send(newUser);
 });
 
 app.use("/campgrounds", campgrounds);
