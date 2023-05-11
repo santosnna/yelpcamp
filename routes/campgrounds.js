@@ -1,27 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const catchAsync = require("../utils/catchAsync");
-const ExpressError = require("../utils/ExpressError");
 const Campground = require("../models/campground");
-const { campgroundSchema } = require("../schemas");
-const { isLoggedIn } = require("../middleware");
-
-/**
- * This function is a Middleware that will validate a
- * campground acording to the Joi schema.
- * @param {*} req
- * @param {*} res
- * @param {*} next
- */
-const validateCampground = (req, res, next) => {
-	const { error } = campgroundSchema.validate(req.body);
-	if (error) {
-		const msg = error.details.map((el) => el.message).join(",");
-		throw new ExpressError(msg, 400);
-	} else {
-		next();
-	}
-};
+const { isLoggedIn, isAuthor, validateCampground } = require("../middleware");
 
 // CAMPGROUND ROUTES
 router.get("/", async (req, res) => {
@@ -65,6 +46,7 @@ router.get(
 router.get(
 	"/:id/edit",
 	isLoggedIn,
+	isAuthor,
 	catchAsync(async (req, res) => {
 		const campground = await Campground.findById(req.params.id);
 		if (!campground) {
@@ -78,6 +60,7 @@ router.get(
 router.put(
 	"/:id",
 	isLoggedIn,
+	isAuthor,
 	validateCampground,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
@@ -92,6 +75,7 @@ router.put(
 router.delete(
 	"/:id",
 	isLoggedIn,
+	isAuthor,
 	catchAsync(async (req, res) => {
 		const { id } = req.params;
 		await Campground.findByIdAndDelete(id);

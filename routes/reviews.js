@@ -1,27 +1,9 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true }); // This option is necessary because routers get separate params and the params would not reach this route otherwise
 const catchAsync = require("../utils/catchAsync");
-const ExpressError = require("../utils/ExpressError");
 const Campground = require("../models/campground");
 const Review = require("../models/review");
-const { reviewSchema } = require("../schemas");
-
-/**
- * This function is a Middleware that will validate a
- * review acording to the Joi schema.
- * @param {*} req
- * @param {*} res
- * @param {*} next
- */
-const validateReview = (req, res, next) => {
-	const { error } = reviewSchema.validate(req.body);
-	if (error) {
-		const msg = error.details.map((el) => el.message).join(",");
-		throw new ExpressError(msg, 400);
-	} else {
-		next();
-	}
-};
+const { validateReview } = require("../middleware");
 
 // REVIEW ROUTES
 router.post(
