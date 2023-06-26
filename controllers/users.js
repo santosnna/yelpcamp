@@ -1,6 +1,4 @@
-const passport = require("passport");
 const User = require("../models/user");
-const { storeReturnTo } = require("../middleware");
 
 module.exports.renderRegistrationForm = (req, res) => {
 	res.render("users/register");
